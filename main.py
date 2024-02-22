@@ -17,6 +17,12 @@ def open_settings_window():
    window_settings.title("Settings")
    window_settings.geometry('250x200')
 
+   btn_save_settings = ttk.Button(window_settings, text = 'Save')
+   btn_save_settings.place(relx=0.1, rely=0.8)
+
+   btn_exit_settings = ttk.Button(window_settings, text = 'Exit', command = lambda: window_settings.destroy())
+   btn_exit_settings.place(relx=0.6, rely=0.8)
+
 current_date = Label(
    text=f"Date : {today} "
 )
