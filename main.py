@@ -3,13 +3,14 @@ from tkinter import ttk
 from datetime import date
 import json
 import check_date
+import show_info
 
-today = date.today()
+today = date.today()                 # current date and check week begining for zerorize week goal
 current_week = today.isocalendar()[1]
 check_date.check_date(today)
 
 
-with open('data_file.json', 'r') as file:
+with open('data_file.json', 'r') as file:    # load statistics from json file
    data = json.load(file)
 
 last_entery_week = data['last_entry_week'] 
@@ -18,23 +19,12 @@ total_labor_year = data['total_labor_year']
 year_goal = data['year_goal']
 weeks = data['weeks']
 
-
-# data = {'last_entery_week': 0, 
-#         'total_labor_week': 0, 
-#         'total_labor_year': 0, 
-#         'year_goal': 1005, 
-#         'weeks':45
-# }
-
-today = date.today()
-
-window = Tk()  #Main window
+window = Tk()                       #Main window
 window.title("Hour calculation")
 window.geometry('400x300')
 
-# Settings window
 
-def open_settings_window(): # 
+def open_settings_window():         # window for enter goals and correct data
    window_settings = Tk()
    window_settings.title("Settings")
    window_settings.geometry('250x200')
@@ -46,7 +36,7 @@ def open_settings_window(): #
                                   command = lambda: window_settings.destroy())
    btn_exit_settings.place(relx=0.6, rely=0.8)
 
-def error_window(): # 
+def error_window():                  # window shows that hours enterd not in valide format
    window_error = Tk()
    window_error.title("ERROR")
    window_error.geometry('250x100')
@@ -57,17 +47,15 @@ def error_window(): #
    btn_OK.pack(side='bottom')
 
 
-# Enter hour feild functions
-   
 def clear():
-   enter_hour.delete(0, END)   # удаление введенного текста
+   enter_hour.delete(0, END)         # clean eneter field
  
-def click():
+def click():                         # summarize labor hours and save entered hours to json
    global last_labor_hour
    global total_labor_week
    global total_labor_year
   
-   entered_value = enter_hour.get()   # save entered hours to variable
+   entered_value = enter_hour.get()   
    if check_valid_enter(entered_value) is True:
       last_labor_hour = float(entered_value)
       total_labor_week += last_labor_hour
@@ -83,22 +71,13 @@ def click():
          json.dump(data, file)
       clear()
   
-      label_year_goal = ttk.Label(text=f"Year goal: {year_goal} hours", padding=8)
-      label_year_goal.place(relx=0.1, rely=0.1)
+      show_info.show_data(year_goal, total_labor_year, weeks, total_labor_week, current_week)
 
-      label_year_hour = ttk.Label(text=f"Hours at current year: {total_labor_year} is {round(total_labor_year*100/year_goal, 2)}% of year goal", padding=8)
-      label_year_hour.place(relx=0.1, rely=0.2)
-
-      label_week_goal = ttk.Label(text=f" Current week ({current_week}/52) goal: {int(year_goal/weeks)} hours", padding=8)
-      label_week_goal.place(relx=0.1, rely=0.3)
-
-      label_week_hour = ttk.Label(text=f"Hours at current week: {total_labor_week} is {round(total_labor_week*100/(year_goal/weeks), 2)}% of week goal", padding=8)
-      label_week_hour.place(relx=0.1, rely=0.4)
    else:
       clear()
       error_window()
       
-def check_valid_enter(string: str) -> bool:
+def check_valid_enter(string: str) -> bool:  # check entered value of hours for valide format
    for symbol in string:
       if symbol not in '-0123456789.':
          return False
@@ -120,25 +99,18 @@ btn_settings.place(relx=0.1, rely=0.87)
 
 # Enter hour field and button
 
+label_valide_enter = ttk.Label(text='Enter hours in format XX or X.XX')
+label_valide_enter.place(relx=0.55, rely=0.63)                              
+
 enter_hour = ttk.Entry()
-enter_hour.place(relx=0.6, rely=0.6)
+enter_hour.place(relx=0.6, rely=0.7)
   
 btn_enter_hour = ttk.Button(text="Enter", command=click)
-btn_enter_hour.place(relx=0.65, rely=0.7)
+btn_enter_hour.place(relx=0.65, rely=0.8)
 
-# Year and week hour information feild
+# Year and week hour information feild at start
 
-label_year_goal = ttk.Label(text=f"Year goal: {year_goal} hours", padding=8)
-label_year_goal.place(relx=0.1, rely=0.1)
-
-label_year_hour = ttk.Label(text=f"Hours at current year: {total_labor_year} is {round(total_labor_year*100/year_goal, 2)}% of year goal", padding=8)
-label_year_hour.place(relx=0.1, rely=0.2)
-
-label_week_goal = ttk.Label(text=f" Current week ({current_week}/52) goal: {int(year_goal/weeks)} hours", padding=8)
-label_week_goal.place(relx=0.1, rely=0.3)
-
-label_week_hour = ttk.Label(text=f"Hours at current week: {total_labor_week} is {round(total_labor_week*100/(year_goal/weeks), 2)}% of week goal", padding=8)
-label_week_hour.place(relx=0.1, rely=0.4)
+show_info.show_data(year_goal, total_labor_year, weeks, total_labor_week, current_week)
 
 window.mainloop()
 
